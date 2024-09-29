@@ -29,7 +29,10 @@ class _SalesEditPageState extends State<SalesEditPage> {
   bool _isPressed = false;
   bool? _isTek;
   bool? _isDip;
-  bool _isAmbalaj = false;
+
+  String? _selectedCustomer;
+  String? _no;
+  String? _tarih;
 
   int? spMonth;
   int? fisSira;
@@ -38,7 +41,7 @@ class _SalesEditPageState extends State<SalesEditPage> {
 
   DataBaseHelper dbHelper = DataBaseHelper();
   List<CustomerModel> customerList = [];
-  String? _selectedCustomer;
+
   String? _imageFile;
 
   final List<String> _itemListZeytinTuru = [
@@ -65,6 +68,9 @@ class _SalesEditPageState extends State<SalesEditPage> {
       _isDip = salesModel!.dip == 1 ? true : false;
       _isTek = salesModel!.tek == 1 ? true : false;
       _imageFile = salesModel!.image_path.toString();
+      _selectedCustomer = salesModel!.musteri;
+      _tarih = salesModel!.tarih;
+      _no = salesModel!.no!;
     });
     super.initState();
   }
@@ -230,7 +236,7 @@ class _SalesEditPageState extends State<SalesEditPage> {
             GestureDetector(
               onTap: () async {
                 updateSalesModel(widget.id!);
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               },
               child: Container(
                   width: width * 0.8,
@@ -243,7 +249,7 @@ class _SalesEditPageState extends State<SalesEditPage> {
                   ),
                   child: Center(
                       child: Text(
-                    "Fiş Yazdır",
+                    "Kaydet",
                   ))),
             ),
           ],
@@ -278,6 +284,13 @@ class _SalesEditPageState extends State<SalesEditPage> {
         tek: _isTek! ? 1 : 0,
         dip: _isDip! ? 1 : 0,
         zeytin_turu: _selectedZeytinTuru,
-        kg: _kgTextController!.text));
+        kg: _kgTextController!.text,
+        musteri:  _selectedCustomer,
+        no: _no,
+        tarih: _tarih
+
+    ),
+
+    );
   }
 }

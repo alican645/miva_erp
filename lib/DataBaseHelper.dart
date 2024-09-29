@@ -158,6 +158,12 @@ class DataBaseHelper{
     return result;
   }
 
+  Future<int> deleteSales(int id) async{
+    Database db=await openDb();
+    var result=db.rawDelete("delete from sales where id=$id");
+    return result;
+  }
+
 
   // update işlemi aslında bir bakıma insert işlemine benzer where ile
   // hangi sütun değerine göre update işlemi yapılacağı belirlenir
@@ -176,6 +182,7 @@ class DataBaseHelper{
     return result;
   }
 
+  ///id'ye seçilen satış modelini güncelleyen fonksiyon
   Future<SalesModel?> getSalesById(int id) async {
     // Veritabanını aç
     Database db = await openDb();

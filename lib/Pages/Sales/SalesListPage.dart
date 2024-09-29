@@ -117,13 +117,22 @@ class _SalesListPagesState extends State<SalesListPages> {
                               builder: (context) => SalesEditPage(
                                     id: salesModel.id,
                                   )), // Yeni sayfaya geçiş
-                        );
+                        ).then((value) {
+                          // Geri döndüğünde veriyi güncelle
+                          _getSales();
+                        });
                       },
                     ),
                     SizedBox(
                       height: width * 0.01,
                     ),
                     GestureDetector(
+                      onTap: ()async{
+                        setState(() {
+                          dbHelper.deleteSales(salesModel.id!);
+                          _getSales();
+                        });
+                      },
                       child: Container(
                         width: width * 0.3,
                         height: 50,
@@ -166,7 +175,7 @@ class _SalesListPagesState extends State<SalesListPages> {
               style: _textStle,
             ),
             Text(
-              (salesModel.ambalaj != "null" && salesModel.ambalaj != null)
+              (salesModel.ambalaj != "null" && salesModel.ambalaj != null&&salesModel.ambalaj != "")
                   ? "Ambalaj Açıklaması:${salesModel.ambalaj.toString()}"
                   : "Ambalaj Açıklaması: Yok",
               style: _textStle,
