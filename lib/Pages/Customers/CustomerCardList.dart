@@ -39,7 +39,13 @@ class _CustomerListPageState extends State<CustomerListPage> {
           child: Column(
             children: [
               SizedBox(width: double.maxFinite,),
-              ...List.generate(customerList.length, (index) => MusteriListItem(customerModel: customerList[index]))
+              Padding(
+                padding: EdgeInsets.all( MediaQuery.of(context).size.width*0.05,),
+                child: SizedBox(
+                    width:MediaQuery.of(context).size.width ,
+                    height: MediaQuery.of(context).size.height*0.85,
+                    child: ListView.builder(itemCount:customerList.length,itemBuilder: (context, index) =>  MusteriListItem(customerModel: customerList[index],))),
+              )
             ],
           ),
         ),

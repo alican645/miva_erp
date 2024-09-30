@@ -33,7 +33,7 @@ class DataBaseHelper{
       return await openDatabase(await join(await getDatabasesPath().toString()),version: 1,onCreate: (db, version) async{
         //veri tabanı oluşturan ve oluşturulan veritabanına bir tablo ekleyen kod satırı
         await db.execute("create table customers(id integer primary key,name text,surname text,phoneNumber text)");
-        await db.execute("create table sales(id integer primary key,kg text,tek int,dip int,zeytin_turu text,musteri text,aciklama text,ambalaj text,image_path text,tarih text,no text)");
+        await db.execute("create table sales(id integer primary key,kg text,tek int,dip int,zeytin_turu text,musteri text,aciklama text,ambalaj text,image_path text,tarih text,no text,palet text)");
 
       },) ;
     }

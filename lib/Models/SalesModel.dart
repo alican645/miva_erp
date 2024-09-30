@@ -10,18 +10,22 @@ class SalesModel {
   String? image_path;
   String? tarih;
   String? no;
+  String? palet;
 
   SalesModel(
       {this.id,
-        this.kg,
-        this.tek,
-        this.dip,
-        this.zeytin_turu,
-        this.musteri,
-        this.aciklama,
-        this.ambalaj,
-        this.image_path,
-      this.tarih,this.no});
+      this.kg,
+      this.tek,
+      this.dip,
+      this.zeytin_turu,
+      this.musteri,
+      this.aciklama,
+      this.ambalaj,
+      this.image_path,
+      this.tarih,
+      this.no,
+      this.palet
+      });
 
   SalesModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -35,6 +39,7 @@ class SalesModel {
     image_path = json['image_path'];
     tarih = json['tarih'];
     no = json['no'];
+    palet = json['palet'];
   }
 
   Map<String, dynamic> toJson() {
@@ -50,6 +55,7 @@ class SalesModel {
     data['image_path'] = this.image_path;
     data['tarih'] = this.tarih;
     data['no'] = this.no;
+    data['palet'] = this.palet;
     return data;
   }
 }

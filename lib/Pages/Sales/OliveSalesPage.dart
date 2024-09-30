@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,14 +26,17 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
   TextEditingController _kgTextController = TextEditingController();
   TextEditingController _aciklamaTextController = TextEditingController();
   TextEditingController _searchBarTextController = TextEditingController();
+  TextEditingController _paletNoTextController = TextEditingController();
   TextEditingController _ambalajAciklamasiTextController =
       TextEditingController();
 
+  Utils utils = Utils();
 
   bool _isPressed = false;
   bool _isTek = false;
   bool _isDip = false;
   bool _isAmbalaj = false;
+  bool _isPalet=false;
 
   int? spMonth;
   int? fisSira;
@@ -51,7 +55,6 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
   ];
   String? _selectedZeytinTuru;
 
-  FocusNode focusNode = FocusNode();
 
   DateTime currentDate = DateTime.now();
 
@@ -119,7 +122,7 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
                   ),
                   Expanded(
                     flex: 3,
-                    child: Utils().getBuildPadding(
+                    child: utils.getBuildPadding(
                         context: context,
                         textEditingController: _searchBarTextController,
                         onChangedCallback: (p0) {
@@ -137,18 +140,23 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
             SizedBox(height: 10),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-              child: Utils().getBuildTextField(
+              child: utils.getBuildTextField(
                 textInputType: TextInputType.number,
                   width: width * 0.05,
                   title: "Kg",
-                  controller: _kgTextController),
+                  controller: _kgTextController,
+                textInputFormatterList:[
+                  // Sadece sayılara ve "/" karakterine izin veren input formatter
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                ],
+              ),
             ),
             SizedBox(
               height: 10,
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-              child: Utils().getBuildTextField(
+              child: utils.getBuildTextField(
                 textInputType: TextInputType.text,
                   width: width * 0.05,
                   title: "Açıklama",
@@ -160,7 +168,7 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Utils().getBuildCustomCheckBox(
+                  utils.getBuildCustomCheckBox(
                     title: "Tek Çekim",
                     width: width,
                     value: _isTek,
@@ -173,7 +181,7 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
                   SizedBox(
                     width: width * 0.01,
                   ),
-                  Utils().getBuildCustomCheckBox(
+                  utils.getBuildCustomCheckBox(
                     title: "Dip",
                     width: width,
                     value: _isDip,
@@ -187,7 +195,7 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
               ),
             ),
             SizedBox(height: 10),
-            Utils().getBuildDropdown(
+            utils.getBuildDropdown(
               width: width,
               selectedValue: _selectedZeytinTuru,
               itemList: _itemListZeytinTuru,
@@ -203,7 +211,41 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
               padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: Row(
                 children: [
-                  Utils().getBuildCustomCheckBox(
+                  utils.getBuildCustomCheckBox(
+                      width: width,
+                      title: "Palet No",
+                      onChanged: (value) {
+                        setState(() {
+                          _isPalet = !_isPalet;
+                        });
+                      },
+                      value: _isPalet),
+                ],
+              ),
+            ),
+
+            SizedBox(
+              child: _isPalet
+                  ? Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                child: utils.getBuildTextField(
+                    textInputFormatterList:[
+                      // Sadece sayılara ve "/" karakterine izin veren input formatter
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
+                    ],
+                    textInputType: TextInputType.text,
+                    width: width * 0.05,
+                    title: "Palet No",
+                    controller: _paletNoTextController),
+              )
+                  : Container(),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+              child: Row(
+                children: [
+                  utils.getBuildCustomCheckBox(
                       width: width,
                       title: "Amabalaj",
                       onChanged: (value) {
@@ -215,12 +257,11 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
             SizedBox(
               child: _isAmbalaj
                   ? Padding(
                       padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-                      child: Utils().getBuildTextField(
+                      child: utils.getBuildTextField(
                         textInputType: TextInputType.text,
                           width: width * 0.05,
                           title: "Ambalaj Açıklaması",
@@ -246,7 +287,7 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
                   if (_kg != "null" &&
                       _selectedCustomer != null &&imageFile!=null&&
                       _selectedZeytinTuru != null) {
-                    String path=Utils().getXFileToString(imageFile!);
+                    String path=utils.getXFileToString(imageFile!);
                     dbHelper.insertSale(SalesModel(
                       aciklama: _aciklamaTextController.text!=""?_aciklamaTextController.text.toString():null,
                         ambalaj: (_isAmbalaj&&_ambalajAciklamasiTextController.text!="")?_ambalajAciklamasiTextController.text.toString():null,
@@ -257,7 +298,8 @@ class _OliveSalesPageState extends State<OliveSalesPage> {
                         musteri: "${_selectedCustomer}",
                     image_path: path,
                     tarih: formattedDate,
-                      no: "${currentDate.year}${Utils().getAySirasiHarfOlarak(spMonth!)}${fisSira}"
+                      no: "${currentDate.year}${utils.getAySirasiHarfOlarak(spMonth!)}${fisSira}",
+                      palet: _paletNoTextController.text
 
                     ));
 

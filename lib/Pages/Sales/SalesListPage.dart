@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:zeytin_app_v2/AppConst.dart';
@@ -28,6 +29,7 @@ class _SalesListPagesState extends State<SalesListPages> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Fiş Listesi"),
@@ -38,8 +40,13 @@ class _SalesListPagesState extends State<SalesListPages> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row(),
-            ...List.generate(salesList.length,
-                (index) => SalesModelItem(salesModel: salesList[index]))
+            Padding(
+              padding: EdgeInsets.all( MediaQuery.of(context).size.width*0.05,),
+              child: SizedBox(
+                width:MediaQuery.of(context).size.width ,
+                  height: MediaQuery.of(context).size.height*0.85,
+                  child: ListView.builder(itemCount:salesList.length,itemBuilder: (context, index) =>  SalesModelItem(salesModel: salesList[index],))),
+            )
           ],
         ),
       ),
@@ -81,6 +88,7 @@ class _SalesListPagesState extends State<SalesListPages> {
                   padding: EdgeInsets.symmetric(horizontal: width * 0.05),
                   child: Container(
                     height: 210,
+                    width: width*0.45,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -129,8 +137,27 @@ class _SalesListPagesState extends State<SalesListPages> {
                     GestureDetector(
                       onTap: ()async{
                         setState(() {
-                          dbHelper.deleteSales(salesModel.id!);
-                          _getSales();
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              content:
+                              Container(
+                                height: width*0.2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("Silmek İstediğinizden Eminmisiniz"),
+                                    TextButton(onPressed: () {
+                                      dbHelper.deleteSales(salesModel.id!);
+                                      _getSales();
+                                      Navigator.pop(context);
+                                    }, child: Text("Eminim"))
+                                  ],
+                                ),
+                              )
+                            ),
+                          );
                         });
                       },
                       child: Container(
@@ -178,6 +205,12 @@ class _SalesListPagesState extends State<SalesListPages> {
               (salesModel.ambalaj != "null" && salesModel.ambalaj != null&&salesModel.ambalaj != "")
                   ? "Ambalaj Açıklaması:${salesModel.ambalaj.toString()}"
                   : "Ambalaj Açıklaması: Yok",
+              style: _textStle,
+            ),
+            Text(
+              (salesModel.palet != "null" && salesModel.palet != null&&salesModel.palet != "")
+                  ? "Palet Numarası:${salesModel.palet.toString()}"
+                  : "Palet Numarası: Yok",
               style: _textStle,
             ),
             Text("Fiş Yazdırılma Tarihi: ${salesModel.tarih}"),

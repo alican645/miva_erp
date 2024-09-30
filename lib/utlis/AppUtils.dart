@@ -1,16 +1,10 @@
-
-
-
-
 import 'dart:io';
-
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:zeytin_app_v2/AppConst.dart';
 import 'package:zeytin_app_v2/Models/CustomerModel.dart';
-import 'package:zeytin_app_v2/Models/SalesModel.dart';
 class
  Utils {
   /// XFile'dan dosya yolunu `String` olarak döndüren fonksiyon
@@ -128,6 +122,7 @@ class
     required double width,
     required String title,
     required TextEditingController controller,
+    List<TextInputFormatter>? textInputFormatterList
   }) {
     OutlineInputBorder _enableDecoration = OutlineInputBorder(
       borderSide: BorderSide(width: 3, color: AppConst().blueRomance),
@@ -143,6 +138,7 @@ class
         style: TextStyle(fontWeight: FontWeight.w600),
         keyboardType: textInputType,
         controller: controller,
+        inputFormatters: textInputFormatterList,
         decoration: InputDecoration(
           hintText: title,
           focusedBorder: _enableDecoration,
@@ -263,6 +259,7 @@ class
   required double width,
   required String title,
   required TextEditingController controller,
+  List<TextInputFormatter>? textInputFormatterList
   }) get getBuildTextField => _buildTextField;
 
   Padding Function({
