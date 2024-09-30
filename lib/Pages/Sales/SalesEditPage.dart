@@ -273,10 +273,10 @@ class _SalesEditPageState extends State<SalesEditPage> {
                   SizedBox(height: 10),
                   GestureDetector(
                     onTap: () async {
-                      // updateSalesModel(widget.id!);
-                      // Navigator.pop(context);
+                      updateSalesModel(widget.id!);
+                      Navigator.pop(context);
                       
-                      createPdf().then((value) => Navigator.push(context,MaterialPageRoute(builder: (context) => PdfViewer(file: value),)));
+                      // createPdf().then((value) => Navigator.push(context,MaterialPageRoute(builder: (context) => PdfViewer(file: value),)));
                     },
                     child: Container(
                         width: width * 0.8,
@@ -334,37 +334,37 @@ class _SalesEditPageState extends State<SalesEditPage> {
     );
   }
 
-  Future<File> createPdf() async {
-    // 1. PDF Belgesi oluşturun
-    final pdf = pw.Document();
-
-    // 2. Yazı tipini rootBundle ile yükleyin
-    final ByteData fontData = await rootBundle.load('assets/fonts/open_sans.ttf');
-    final ttf = pw.Font.ttf(fontData);
-
-    // 3. Sayfa ekleyin
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        build: (pw.Context context) {
-          return pw.Center(
-            child: pw.Text(
-              "Hello World",
-              style: pw.TextStyle(font: ttf, fontSize: 20),
-            ),
-          );
-        },
-      ),
-    );
-
-    // 4. Geçici dizine kaydedin
-    final output = await getTemporaryDirectory();
-    final file = File("${output.path}/example.pdf");
-    await file.writeAsBytes(await pdf.save());
-
-    // 5. Dosya oluşturulduğunda konsola yazdırın
-    print("PDF dosyası başarıyla kaydedildi: ${file.path}");
-
-    return file;
-  }
+  // Future<File> createPdf() async {
+  //   // 1. PDF Belgesi oluşturun
+  //   final pdf = pw.Document();
+  //
+  //   // 2. Yazı tipini rootBundle ile yükleyin
+  //   final ByteData fontData = await rootBundle.load('assets/fonts/open_sans.ttf');
+  //   final ttf = pw.Font.ttf(fontData);
+  //
+  //   // 3. Sayfa ekleyin
+  //   pdf.addPage(
+  //     pw.Page(
+  //       pageFormat: PdfPageFormat.a4,
+  //       build: (pw.Context context) {
+  //         return pw.Center(
+  //           child: pw.Text(
+  //             "Hello World",
+  //             style: pw.TextStyle(font: ttf, fontSize: 20),
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  //
+  //   // 4. Geçici dizine kaydedin
+  //   final output = await getTemporaryDirectory();
+  //   final file = File("${output.path}/example.pdf");
+  //   await file.writeAsBytes(await pdf.save());
+  //
+  //   // 5. Dosya oluşturulduğunda konsola yazdırın
+  //   print("PDF dosyası başarıyla kaydedildi: ${file.path}");
+  //
+  //   return file;
+  // }
 }
