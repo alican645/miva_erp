@@ -8,8 +8,14 @@ import 'package:zeytin_app_v2/Models/CustomerModel.dart';
 class
  Utils {
   /// XFile'dan dosya yolunu `String` olarak döndüren fonksiyon
-  String _xFileToString(XFile file) {
-    return file.path;
+  String _xFileToString(XFile? file) {
+    if(file==null){
+      return "null";
+    }else{
+      return file.path;
+    }
+
+
   }
 
   /// String'den tekrar `XFile` oluşturan fonksiyon
@@ -53,7 +59,7 @@ class
               borderSide: BorderSide.none,
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Colors.transparent,
           ),
           iconStyleData: IconStyleData(
             icon: Icon(
@@ -108,16 +114,16 @@ class
             },
           ),
           onMenuStateChange: (isOpen) {
-            if (!isOpen) {
+
               textEditingController.clear();
-            }
+
           },
         ),
       ),
     );
   }
 
-  Container _buildTextField({
+  TextField _buildTextField({
     required TextInputType textInputType,
     required double width,
     required String title,
@@ -128,23 +134,27 @@ class
       borderSide: BorderSide(width: 3, color: AppConst().blueRomance),
       borderRadius: BorderRadius.circular(16),
     );
+    BoxDecoration _enableBoxDecoration = BoxDecoration(
+      borderRadius: BorderRadius.circular(16),
+    );
+
     OutlineInputBorder _disableDecoration = OutlineInputBorder(
       borderSide: BorderSide(width: 1, color: AppConst().disableColor),
       borderRadius: BorderRadius.circular(16),
     );
-    return Container(
-      height: 65,
-      child: TextField(
-        style: TextStyle(fontWeight: FontWeight.w600),
-        keyboardType: textInputType,
-        controller: controller,
-        inputFormatters: textInputFormatterList,
-        decoration: InputDecoration(
-          hintText: title,
-          focusedBorder: _enableDecoration,
-          enabledBorder:
-          controller.text != "" ? _enableDecoration : _disableDecoration,
-        ),
+    BoxDecoration _disableBoxDecoration = BoxDecoration(border: Border.all(width: 1, color: AppConst().disableColor),
+      borderRadius: BorderRadius.circular(16),
+    );
+    return TextField(
+      style: TextStyle(fontWeight: FontWeight.w600),
+      keyboardType: textInputType,
+      controller: controller,
+      inputFormatters: textInputFormatterList,
+      decoration: InputDecoration(
+        hintText: title,
+        focusedBorder: _enableDecoration,
+        enabledBorder:
+        controller.text != "" ? _enableDecoration : _disableDecoration,
       ),
     );
   }
@@ -168,35 +178,37 @@ class
                   : AppConst().disableColor,
               width: selectedValue != null ? 3 : 1),
         ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButtonFormField<String>(
-            borderRadius: BorderRadius.circular(16),
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.white,
-            ),
-            hint: Text(hintText),
-            value: selectedValue,
-            icon: Icon(
-              selectedValue != null
-                  ? Icons.keyboard_arrow_up_outlined
-                  : Icons.keyboard_arrow_down_outlined,
-            ),
-            items: itemList.map((String item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(
-                  item,
+        child: Center(
+          child: DropdownButtonHideUnderline(
+            child: DropdownButtonFormField<String>(
+              borderRadius: BorderRadius.circular(16),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
                 ),
-              );
-            }).toList(),
-            onChanged: (newValue) {
-              onChangedCallback(newValue);
-            },
+                filled: true,
+                fillColor: Colors.transparent,
+              ),
+              hint: Text(hintText),
+              value: selectedValue,
+              icon: Icon(
+                selectedValue != null
+                    ? Icons.keyboard_arrow_up_outlined
+                    : Icons.keyboard_arrow_down_outlined,
+              ),
+              items: itemList.map((String item) {
+                return DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(
+                    item,
+                  ),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                onChangedCallback(newValue);
+              },
+            ),
           ),
         ),
       ),
@@ -243,7 +255,7 @@ class
   }
 
   /// Getter Methods
-  String Function(XFile) get getXFileToString => _xFileToString;
+  String Function(XFile?) get getXFileToString => _xFileToString;
   XFile Function(String) get getStringToXFile => _stringToXFile;
   Container Function({
   required TextEditingController textEditingController,
@@ -252,9 +264,9 @@ class
   String? selectedCustomer,
   required List<CustomerModel> customerList,
   required Function(String?) onChangedCallback,
-  }) get getBuildPadding => _buildPadding;
+  }) get getBuildSearchDropDown => _buildPadding;
 
-  Container Function({
+  TextField Function({
   required TextInputType textInputType,
   required double width,
   required String title,
@@ -337,6 +349,38 @@ class
     );
   }
 
+  // Formatlanmış bir stringi modele dönüştüren fonksiyon
+  CustomerModel fromFormattedString(String formattedString) {
+    try {
+      // Düzenli ifade ile "id - isim soyisim - telefonNumarası" kalıbını ayırıyoruz
+      final regex = RegExp(r'^(\d+) - (.+) - (\+?\d+)$');
+      final match = regex.firstMatch(formattedString);
+
+      if (match != null) {
+        int? id = int.tryParse(match.group(1) ?? '');
+        String fullName = match.group(2) ?? '';
+        String? phoneNumber = match.group(3);
+
+        // Soyadı ayırmak için son kelimeyi alıyoruz
+        List<String> nameParts = fullName.split(' ');
+        String? surname = nameParts.isNotEmpty ? nameParts.removeLast() : null;
+        String? name = nameParts.join(' ');
+
+        return CustomerModel(
+          id: id,
+          name: name,
+          surname: surname,
+          phoneNumber: phoneNumber,
+        );
+      }
+    } catch (e) {
+      print('Parsing error: $e');
+    }
+
+    return CustomerModel();
+  }
+
+
   /// Getter Metodu
   GestureDetector Function(double,void Function(),) get getBuildChoosingPictureButton =>
       _buildChoosingPictureButton;
@@ -345,3 +389,4 @@ class
 
 
 }
+

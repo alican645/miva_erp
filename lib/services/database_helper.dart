@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:zeytin_app_v2/Models/SalesModel.dart';
 
-import 'Models/CustomerModel.dart';
+import '../Models/CustomerModel.dart';
 
 
 class DataBaseHelper{
@@ -29,13 +29,40 @@ class DataBaseHelper{
     // onUpgrade ve onDowngrade: Veritabanı sürümü yükseltildiğinde veya düşürüldüğünde çalışacak fonksiyonları belirtir.
     // onOpen: Veritabanı açıldığında çalışacak bir fonksiyonu belirtir.
 
-    if(_database==null){
-      return await openDatabase(await join(await getDatabasesPath().toString()),version: 1,onCreate: (db, version) async{
-        //veri tabanı oluşturan ve oluşturulan veritabanına bir tablo ekleyen kod satırı
-        await db.execute("create table customers(id integer primary key,name text,surname text,phoneNumber text)");
-        await db.execute("create table sales(id integer primary key,kg text,tek int,dip int,zeytin_turu text,musteri text,aciklama text,ambalaj text,image_path text,tarih text,no text,palet text)");
+    if (_database == null) {
+      return await openDatabase(
+        await join(await getDatabasesPath().toString()),
+        version: 1,
+        onCreate: (db, version) async {
+          // Customers tablosunu oluştur
+          await db.execute(
+            "CREATE TABLE customers("
+                "id INTEGER PRIMARY KEY,"
+                "name TEXT,"
+                "surname TEXT,"
+                "phoneNumber TEXT)",
+          );
 
-      },) ;
+          // Sales tablosunu customerid ile ilişkilendirerek oluştur
+          await db.execute(
+            "CREATE TABLE sales("
+                "id INTEGER PRIMARY KEY,"
+                "kg TEXT,"
+                "tek INT,"
+                "dip INT,"
+                "zeytin_turu TEXT,"
+                "musteri TEXT,"
+                "aciklama TEXT,"
+                "ambalaj TEXT,"
+                "image_path TEXT,"
+                "tarih TEXT,"
+                "no TEXT,"
+                "palet TEXT,"
+                "customerid INTEGER,"
+                "FOREIGN KEY (customerid) REFERENCES customers(id))",
+          );
+        },
+      );
     }
     return _database!;
   }
@@ -197,6 +224,26 @@ class DataBaseHelper{
     // Eğer veri bulunursa, ilk sonucu SalesModel olarak döndür
     if (result.isNotEmpty) {
       return SalesModel.fromJson(result.first);
+    }
+
+    // Veri bulunmazsa null döndür
+    return null;
+  }
+
+  Future<int?> getLastInsertedSaleId() async {
+    Database db = await openDb();
+
+    // 'sales' tablosundan son eklenen satırı almak için ORDER BY ile sıralama yapıyoruz
+    // DESC ile en son eklenen veriyi başa getiriyoruz ve LIMIT 1 ile sadece bir sonuç alıyoruz
+    List<Map<String, dynamic>> result = await db.query(
+      "sales",
+      orderBy: "id DESC",
+      limit: 1,
+    );
+
+    // Eğer sonuç varsa, id'yi döndür
+    if (result.isNotEmpty) {
+      return result.first['id'] as int?;
     }
 
     // Veri bulunmazsa null döndür

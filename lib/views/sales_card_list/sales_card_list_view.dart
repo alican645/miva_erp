@@ -1,35 +1,35 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:zeytin_app_v2/AppConst.dart';
-import 'package:zeytin_app_v2/DataBaseHelper.dart';
 import 'package:zeytin_app_v2/Models/SalesModel.dart';
-import 'package:zeytin_app_v2/Pages/Sales/SalesEditPage.dart';
+import 'package:zeytin_app_v2/services/database_helper.dart';
+import 'package:zeytin_app_v2/views/sales_card_list/sales_card_list_viewmodel.dart';
+import 'package:zeytin_app_v2/views/sales_edit/SalesEditPage.dart';
 import 'package:zeytin_app_v2/utlis/AppUtils.dart';
 
-class SalesListPages extends StatefulWidget {
-  const SalesListPages({super.key});
+class SalesCardListView extends StatefulWidget {
+  const SalesCardListView({super.key});
 
   @override
-  State<SalesListPages> createState() => _SalesListPagesState();
+  State<SalesCardListView> createState() => _SalesCardListViewState();
 }
 
-class _SalesListPagesState extends State<SalesListPages> {
+class _SalesCardListViewState extends State<SalesCardListView> {
   List<String> list = [];
   DataBaseHelper dbHelper = DataBaseHelper();
   List<SalesModel> salesList = [];
 
   @override
   void initState() {
+    context.read<SalesCardListViewModel>().getSales();
     super.initState();
-    _getSales();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Fiş Listesi"),
@@ -41,11 +41,22 @@ class _SalesListPagesState extends State<SalesListPages> {
           children: [
             Row(),
             Padding(
-              padding: EdgeInsets.all( MediaQuery.of(context).size.width*0.05,),
+              padding: EdgeInsets.all(
+                MediaQuery.of(context).size.width * 0.05,
+              ),
               child: SizedBox(
-                width:MediaQuery.of(context).size.width ,
-                  height: MediaQuery.of(context).size.height*0.85,
-                  child: ListView.builder(itemCount:salesList.length,itemBuilder: (context, index) =>  SalesModelItem(salesModel: salesList[index],))),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.85,
+                  child: ListView.builder(
+                      itemCount: context
+                          .watch<SalesCardListViewModel>()
+                          .getSalesList
+                          .length,
+                      itemBuilder: (context, index) => SalesModelItem(
+                            salesModel: context
+                                .watch<SalesCardListViewModel>()
+                                .getSalesList[index],
+                          ))),
             )
           ],
         ),
@@ -53,21 +64,13 @@ class _SalesListPagesState extends State<SalesListPages> {
     );
   }
 
-  void _getSales() async {
-    var result = dbHelper.getSales();
-    result.then((value) {
-      //value değerini setstate ile beraber listeye aktarıyoruz ki widget tree tekrardan yapılandırılsın.
-      setState(() {
-        salesList = value;
-      });
-    });
-  }
-
   Container SalesModelItem({required SalesModel salesModel}) {
     double width = MediaQuery.of(context).size.width;
     TextStyle _textStle = TextStyle(fontSize: 16);
-    XFile xfile;
-    xfile = Utils().getStringToXFile(salesModel.image_path.toString());
+    XFile? xfile;
+    xfile = salesModel.image_path.toString() == "null"
+        ? null
+        : Utils().getStringToXFile(salesModel.image_path.toString());
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       padding: EdgeInsets.all(width * 0.02),
@@ -84,29 +87,31 @@ class _SalesListPagesState extends State<SalesListPages> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-                  child: Container(
-                    height: 210,
-                    width: width*0.45,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(1),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(
-                            File(xfile.path),
-                            fit: BoxFit
-                                .cover, // Resmi belirlenen alana sığdırmak için
+                xfile != null
+                    ? Padding(
+                        padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                        child: Container(
+                          height: 210,
+                          width: width * 0.45,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(1),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(
+                                  File(xfile.path),
+                                  fit: BoxFit
+                                      .cover, // Resmi belirlenen alana sığdırmak için
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
+                      )
+                    : Container(),
                 Column(
                   children: [
                     GestureDetector(
@@ -127,7 +132,7 @@ class _SalesListPagesState extends State<SalesListPages> {
                                   )), // Yeni sayfaya geçiş
                         ).then((value) {
                           // Geri döndüğünde veriyi güncelle
-                          _getSales();
+                          context.read<SalesCardListViewModel>().getSales();
                         });
                       },
                     ),
@@ -135,28 +140,30 @@ class _SalesListPagesState extends State<SalesListPages> {
                       height: width * 0.01,
                     ),
                     GestureDetector(
-                      onTap: ()async{
+                      onTap: () async {
                         setState(() {
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
-                              content:
-                              Container(
-                                height: width*0.2,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text("Silmek İstediğinizden Eminmisiniz"),
-                                    TextButton(onPressed: () {
-                                      dbHelper.deleteSales(salesModel.id!);
-                                      _getSales();
-                                      Navigator.pop(context);
-                                    }, child: Text("Eminim"))
-                                  ],
-                                ),
-                              )
-                            ),
+                                content: Container(
+                              height: width * 0.2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Silmek İstediğinizden Eminmisiniz"),
+                                  TextButton(
+                                      onPressed: () {
+                                        dbHelper.deleteSales(salesModel.id!);
+                                        context
+                                            .read<SalesCardListViewModel>()
+                                            .getSales();
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text("Eminim"))
+                                ],
+                              ),
+                            )),
                           );
                         });
                       },
@@ -168,7 +175,6 @@ class _SalesListPagesState extends State<SalesListPages> {
                             color: Colors.redAccent),
                         child: Center(child: Text("Sil")),
                       ),
-
                     ),
                   ],
                 )
@@ -202,19 +208,24 @@ class _SalesListPagesState extends State<SalesListPages> {
               style: _textStle,
             ),
             Text(
-              (salesModel.ambalaj != "null" && salesModel.ambalaj != null&&salesModel.ambalaj != "")
+              (salesModel.ambalaj != "null" &&
+                      salesModel.ambalaj != null &&
+                      salesModel.ambalaj != "")
                   ? "Ambalaj Açıklaması:${salesModel.ambalaj.toString()}"
                   : "Ambalaj Açıklaması: Yok",
               style: _textStle,
             ),
             Text(
-              (salesModel.palet != "null" && salesModel.palet != null&&salesModel.palet != "")
+              (salesModel.palet != "null" &&
+                      salesModel.palet != null &&
+                      salesModel.palet != "")
                   ? "Palet Numarası:${salesModel.palet.toString()}"
                   : "Palet Numarası: Yok",
               style: _textStle,
             ),
             Text("Fiş Yazdırılma Tarihi: ${salesModel.tarih}"),
             Text("Fiş Numarası : ${salesModel.no}"),
+            Text("Müşteri İD : ${salesModel.customerid}"),
           ],
         ),
       ),

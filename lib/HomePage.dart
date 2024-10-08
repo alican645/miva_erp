@@ -4,10 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:zeytin_app_v2/AppConst.dart';
-import 'package:zeytin_app_v2/Pages/Customers/CustomerAddPage.dart';
-import 'package:zeytin_app_v2/Pages/Customers/CustomerCardList.dart';
-import 'package:zeytin_app_v2/Pages/Sales/OliveSalesPage.dart';
-import 'package:zeytin_app_v2/Pages/Sales/SalesListPage.dart';
+import 'package:zeytin_app_v2/views/customer_add/customer_add_view.dart';
+import 'package:zeytin_app_v2/views/customer_card_list/customer_card_list_view.dart';
+import 'package:zeytin_app_v2/views/olive_sales/olive_sales_view.dart';
+import 'package:zeytin_app_v2/views/sales_card_list/sales_card_list_view.dart';
 
 
 
@@ -39,14 +39,14 @@ class _HomePageState extends State<HomePage> {
               routerButton(title: "Cari Kart Ekle", onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CustomerAddPage()), // Yeni sayfaya geçiş
+                  MaterialPageRoute(builder: (context) => CustomerAddView()), // Yeni sayfaya geçiş
                 );
               }, width: width),
               SizedBox(width: width*0.05,),
               routerButtonOfList(title: "Liste", onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>CustomerListPage()), // Yeni sayfaya geçiş
+                  MaterialPageRoute(builder: (context) =>CustomerCardListView()), // Yeni sayfaya geçiş
                 );
               }, width: width),
 
@@ -60,14 +60,14 @@ class _HomePageState extends State<HomePage> {
               routerButton(title: "Fiş Ekle", onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => OliveSalesPage()), // Yeni sayfaya geçiş
+                  MaterialPageRoute(builder: (context) => OliveSalesView()), // Yeni sayfaya geçiş
                 );
               }, width: width),
               SizedBox(width: width*0.05,),
               routerButtonOfList(title: "Liste", onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SalesListPages()), // Yeni sayfaya geçiş
+                  MaterialPageRoute(builder: (context) => SalesCardListView()), // Yeni sayfaya geçiş
                 );
               }, width: width),
 

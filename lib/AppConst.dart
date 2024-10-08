@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 class AppConst{
@@ -11,5 +9,5 @@ class AppConst{
   Color seaTurtleGreen = Color(0xff40916C);
   Color elevationColor = Colors.grey.withOpacity(0.5);
   Color disableColor = Colors.grey.withOpacity(0.5);
-
 }
+

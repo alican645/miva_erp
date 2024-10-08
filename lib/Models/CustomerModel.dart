@@ -1,5 +1,3 @@
-
-
 class CustomerModel {
   int? id;
   String? name;
@@ -24,36 +22,10 @@ class CustomerModel {
     return data;
   }
 
-  // İsim, soyisim ve numarayı formatlayarak döndüren fonksiyon
+  // ID, isim, soyisim ve numarayı formatlayarak döndüren fonksiyon
   String toFormattedString() {
-    return "${name ?? ''} ${surname ?? ''} - ${phoneNumber ?? ''}";
+    return "${id ?? ''} - ${name ?? ''} ${surname ?? ''} - ${phoneNumber ?? ''}";
   }
 
-  // Formatlanmış bir stringi modele dönüştüren fonksiyon
-  static CustomerModel fromFormattedString(String formattedString) {
-    try {
-      // "isim soyisim - telefonNumarası" formatını parse ediyoruz
-      List<String> parts = formattedString.split(' - ');
-      if (parts.length == 2) {
-        List<String> nameParts = parts[0].split(' ');
-        String? phoneNumber = parts[1];
-
-        String? name = nameParts.isNotEmpty ? nameParts[0] : null;
-        String? surname = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : null;
-
-        return CustomerModel(
-          name: name,
-          surname: surname,
-          phoneNumber: phoneNumber,
-        );
-      }
-    } catch (e) {
-      // Hata durumunda boş bir model döndürüyoruz
-      print('Parsing error: $e');
-    }
-
-    // Eğer format uygun değilse veya parse edilemezse boş bir model döndürülür
-    return CustomerModel();
-  }
 
 }

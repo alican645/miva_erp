@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:zeytin_app_v2/AppConst.dart';
-import 'package:zeytin_app_v2/DataBaseHelper.dart';
+import 'package:zeytin_app_v2/services/database_helper.dart';
+import 'package:zeytin_app_v2/views/customer_add/customer_add_viewmodel.dart';
 
 import '../../Models/CustomerModel.dart';
 
-class CustomerAddPage extends StatefulWidget {
-  const CustomerAddPage({super.key});
+class CustomerAddView extends StatefulWidget {
+  const CustomerAddView({super.key});
 
   @override
-  State<CustomerAddPage> createState() => _CustomerAddPageState();
+  State<CustomerAddView> createState() => _CustomerAddViewState();
 }
 
-class _CustomerAddPageState extends State<CustomerAddPage> {
+class _CustomerAddViewState extends State<CustomerAddView> {
   TextEditingController controllerName = TextEditingController();
   TextEditingController controllerSurname = TextEditingController();
   TextEditingController controllerPhoneNumber = TextEditingController();
@@ -19,11 +21,19 @@ class _CustomerAddPageState extends State<CustomerAddPage> {
   DataBaseHelper dbHelper = DataBaseHelper();
 
   @override
+  void dispose() {
+    controllerName.dispose();
+    controllerSurname.dispose();
+    controllerPhoneNumber.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Cari Kart Ekle"),
+        title: const Text("Cari Kart Ekle"),
         centerTitle: true,
       ),
       body: Column(
@@ -32,7 +42,7 @@ class _CustomerAddPageState extends State<CustomerAddPage> {
           _buildTextField(
             textInputType: TextInputType.text,
               title: "İsim", controller: controllerName, width: width * 0.05),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _buildTextField(
@@ -40,7 +50,7 @@ class _CustomerAddPageState extends State<CustomerAddPage> {
               title: "Soyisim",
               controller: controllerSurname,
               width: width * 0.05),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _buildTextField(
@@ -48,36 +58,37 @@ class _CustomerAddPageState extends State<CustomerAddPage> {
               title: "Telefon Numarası",
               controller: controllerPhoneNumber,
               width: width * 0.05),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
-          GestureDetector(
-              onTap: () {
-                String _name = controllerName.text.toString();
-                String _surName = controllerSurname.text.toString();
-                String _phoneNumber = controllerPhoneNumber.text.toString();
-                if (_phoneNumber != "" && _surName != "" && _name != "") {
-                  dbHelper.insertCustomer(CustomerModel(
-                      name: _name,
-                      surname: _surName,
-                      phoneNumber: _phoneNumber));
-                  Navigator.pop(context);
-                }else{
-                  showDialog(context: context, builder:(context) => AlertDialog(
-                    title: Text("Hata"),
-                    content: Text("Lütfen tamamını doldurduğunuzdan emin olun."),
-                  ),);
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    color: AppConst().blueRomance,
-                    borderRadius: BorderRadius.circular(16)),
-                padding: EdgeInsets.symmetric(
-                    horizontal: width * 0.1, vertical: width * 0.05),
-                child: Text("Müşteriyi Ekle"),
-              )),
-          SizedBox(
+          Consumer<CustomerAddViewModel>(builder: (context, value, child) => GestureDetector(
+                onTap: () async {
+                  String _name = controllerName.text.toString();
+                  String _surName = controllerSurname.text.toString();
+                  String _phoneNumber = controllerPhoneNumber.text.toString();
+                  if (_phoneNumber != ""  && _surName != "" && _name != "") {
+                   value.insertCustomerModel(CustomerModel(
+                       name: _name,
+                       surname: _surName,
+                       phoneNumber: _phoneNumber));
+                    Navigator.pop(context);
+                  }else{
+                    showDialog(context: context, builder:(context) => const AlertDialog(
+                      title: Text("Hata"),
+                      content: Text("Lütfen tamamını doldurduğunuzdan emin olun."),
+                    ),);
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: AppConst().blueRomance,
+                      borderRadius: BorderRadius.circular(16)),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: width * 0.1, vertical: width * 0.05),
+                  child: const Text("Müşteriyi Ekle"),
+                )),
+          ),
+          const SizedBox(
             height: 10,
           ),
         ],
